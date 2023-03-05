@@ -1,4 +1,4 @@
-import { PostDB, PostModel } from "../Types"
+import { PostDB, PostModel } from "../types"
 
 export class Post {
     constructor(
@@ -6,6 +6,7 @@ export class Post {
         private content: string,
         private likes: number,
         private dislikes: number,
+        private comments: number,
         private createdAt: string,
         private updatedAt: string,
         private creatorId: string,
@@ -17,7 +18,7 @@ export class Post {
     }
 
     public setId(value: string): void {
-         this.id = value
+        this.id = value
     }
 
     public getContent(): string {
@@ -60,6 +61,14 @@ export class Post {
         this.dislikes = value
     }
 
+    public getComments(): number {
+        return this.comments
+    }
+
+    public setComments(value: number): void {
+        this.comments = value
+    }
+
     public getCreatedAt(): string {
         return this.createdAt
     }
@@ -84,23 +93,24 @@ export class Post {
         this.creatorId = value
     }
 
-    public getCreatorName(): string {
+    public getCreatorNickName(): string {
         return this.creatorNickName
     }
 
-    public setCreatorName(value: string): void {
+    public setCreatorNickName(value: string): void {
         this.creatorNickName = value
     }
 
     public toDBModel(): PostDB {
         return {
-            id:this.id,
-            creator_id:this.creatorId,
-            content:this.content,
-            likes:this.likes,
-            dislikes:this.dislikes,
-            created_at:this.createdAt,
-            updated_at:this.updatedAt
+            id: this.id,
+            creator_id: this.creatorId,
+            content: this.content,
+            likes: this.likes,
+            dislikes: this.dislikes,
+            comments: this.comments,
+            created_at: this.createdAt,
+            updated_at: this.updatedAt
         }
     }
 
@@ -110,6 +120,7 @@ export class Post {
             content: this.content,
             likes: this.likes,
             dislikes: this.dislikes,
+            comments: this.comments,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             creator: {

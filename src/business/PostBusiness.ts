@@ -1,11 +1,11 @@
-import { PostDatabase } from "../dabatase/PostDatabase"
+import { PostDatabase } from "../database/PostDatabase"
 import { CreatePostInputDTO, DeletePostInputDTO, EditPostInputDTO, GetPostsInputDTO, GetPostsOutputDTO, LikeOrDislikePostInputDTO } from "../dtos/PostDTO"
 import { BadRequestError } from "../errors/BadRequestError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { Post } from "../models/PostModel"
 import { IdGenerator } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
-import { LikeDislikeDB, PostWithCreatorDB, POST_LIKE, Role } from "../Types"
+import { LikeDislikeDB, PostWithCreatorDB, POST_LIKE, Role } from "../types"
 
 export class PostBusiness {
     constructor(
@@ -37,6 +37,7 @@ export class PostBusiness {
                 postWithCreatorDB.content,
                 postWithCreatorDB.likes,
                 postWithCreatorDB.dislikes,
+                postWithCreatorDB.comments,
                 postWithCreatorDB.created_at,
                 postWithCreatorDB.updated_at,
                 postWithCreatorDB.creator_id,
@@ -73,6 +74,7 @@ export class PostBusiness {
         const newPost = new Post(
             id,
             content,
+            0,
             0,
             0,
             new Date().toISOString(),
@@ -122,6 +124,7 @@ export class PostBusiness {
             newPostDB.content,
             newPostDB.likes,
             newPostDB.dislikes,
+            newPostDB.comments,
             newPostDB.created_at,
             newPostDB.updated_at,
             creatorId,
@@ -151,7 +154,7 @@ export class PostBusiness {
         }
 
         const postDBExists = await this.postDatabase.findPostById(idToDelete)
-
+        
         if (!postDBExists) {
             throw new NotFoundError("'id' não encontrado")
         }
@@ -204,6 +207,7 @@ export class PostBusiness {
             postWithCreatorDB.content,
             postWithCreatorDB.likes,
             postWithCreatorDB.dislikes,
+            postWithCreatorDB.comments,
             postWithCreatorDB.created_at,
             postWithCreatorDB.updated_at,
             postWithCreatorDB.creator_id,
