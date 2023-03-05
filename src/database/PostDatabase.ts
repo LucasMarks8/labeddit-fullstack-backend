@@ -15,20 +15,21 @@ export class PostDatabase extends BaseDatabase {
                 "posts.content",
                 "posts.likes",
                 "posts.dislikes",
+                "posts.comments",
                 "posts.created_at",
                 "posts.updated_at",
-                "users.nickName AS creator_niCkName"
+                "users.nick_name AS creator_nickName"
             )
             .join("users", "posts.creator_id", "=", "users.id")
 
         return result
     }
 
-    public async findPostById(id: string): Promise<PostDB | undefined> {
+    public async findPostById(idParams: string): Promise<PostDB | undefined> {
         const result: PostDB[] = await BaseDatabase
             .connection(PostDatabase.TABLE_POST)
             .select()
-            .where({ id })
+            .where({ id: idParams })
 
         return result[0]
     }

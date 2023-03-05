@@ -1,11 +1,12 @@
 -- Active: 1677932724554@@127.0.0.1@3306
 
-
 DROP TABLE posts;
 
 DROP TABLE users;
 
 DROP TABLE likes_dislikes;
+
+DROP TABLE comment;
 
 CREATE TABLE
     users (
@@ -85,7 +86,13 @@ CREATE TABLE
 
 INSERT INTO
     likes_dislikes (user_id, post_id, like)
-VALUES ("u002", "p001", 1), ("u003", "p001", 1), ("u002", "p002", 1), ("u003", "p002", 1), ("u001", "p003", 1), ("u003", "p003", 0);
+VALUES 
+    ("u002", "p001", 1), 
+    ("u003", "p001", 1), 
+    ("u002", "p002", 1), 
+    ("u003", "p002", 1), 
+    ("u001", "p003", 1), 
+    ("u003", "p003", 0);
 
 UPDATE posts SET likes = 2 WHERE id = "p001";
 
@@ -96,48 +103,33 @@ UPDATE posts SET likes = 1 WHERE id = "p003";
 UPDATE posts SET dislikes = 1 WHERE id = "p003";
 
 CREATE TABLE
-    comments (
+    comment (
         id TEXT PRIMARY KEY UNIQUE NOT NULL,
-        post_id UNIQUE NOT NULL,
-        user_id UNIQUE NOT NULL,
-        comment TEXT NOT NULL,
+        post_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        comments TEXT NOT NULL,
         likes INTEGER,
         dislikes INTEGER,
         created_at TEXT DEFAULT (DATETIME()) NOT NULL,
         FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE ON UPDATE CASCADE FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
-CREATE TABLE
-    post_comments (
-        user_id TEXT NOT NULL,
-        post_id TEXT NOT NULL,
-        comment INTEGER NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE ON UPDATE CASCADE
-    );
+INSERT INTO comment (id, post_id, user_id, comments)
+VALUES
+    ("c001", "p001", "u002", "Ah, eu já sabia! rsrs!"),
+    ("c002", "p003", "u001", "Vamos, Corithians!"),
+    ("c003", "p002", "u003", "Se couber mais um, to aí em!");
 
-INSERT into
-    comments (id, psot_id, user_id, comment)
-values (
-        "c001",
-        "u002",
-        "p001",
-        "Vamos então!!"
-    ), (
-        "c002",
-        "u003",
-        "p001",
-        "Só se for na faixa!"
-    ), (
-        "c003",
-        "u001",
-        "p003",
-        "Eu estou no norte, se você vier pra cá??!?!"
-    ), (
-        "c004",
-        "u001",
-        "p002",
-        "A minha vai bem, bem mal, rsrs!"
+DROP TABLE post_comment;
+CREATE TABLE
+    comment_likes_dislikes (
+        post_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        comment_id TEXT NOT NULL,
+        like INTEGER NOT NULL,
+        FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (comment_id) REFERENCES comment (id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 SELECT
@@ -146,6 +138,7 @@ SELECT
     posts.content,
     posts.likes,
     posts.dislikes,
+    posts.comments,
     posts.created_at,
     posts.updated_at,
     users.nick_name AS creator_nickName
@@ -156,4 +149,4 @@ SELECT * FROM posts;
 
 SELECT * FROM users;
 
-SELECT * FROM comments;
+SELECT * FROM comment;

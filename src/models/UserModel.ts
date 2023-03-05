@@ -1,4 +1,4 @@
-import { Role, UserDB, UserModel } from "../Types"
+import { Role, UserDB, UserModel } from "../types"
 
 export class User {
     constructor(
