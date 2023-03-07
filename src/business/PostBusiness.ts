@@ -52,6 +52,58 @@ export class PostBusiness {
         return output
     }
 
+    // public getPostWithComment = async (input: GetPostsInputDTO): Promise<GetPostsOutputDTO> => {
+
+    //     const { token } = input
+
+    //     if (token === undefined) {
+    //         throw new BadRequestError("token é necessário")
+    //     }
+
+    //     const payload = this.tokenManager.getPayload(token)
+
+    //     if (payload === null) {
+    //         throw new BadRequestError("'token' inválido")
+    //     }
+
+    //     const postsWithCreatorsDB: PostWithCreatorDB[] =
+    //         await this.postDatabase.getPostsWithCreators()
+
+    //     const posts = postsWithCreatorsDB.map((postWithCreatorDB) => {
+    //         const post = new Post (
+    //             postWithCreatorDB.id,
+    //             postWithCreatorDB.content,
+    //             postWithCreatorDB.likes,
+    //             postWithCreatorDB.dislikes,
+    //             postWithCreatorDB.comments,
+    //             postWithCreatorDB.created_at,
+    //             postWithCreatorDB.updated_at,
+    //             postWithCreatorDB.creator_id,
+    //             postWithCreatorDB.creator_nick_name
+    //         )
+
+    //         const commentsWithCreatorsDB: CommentWithCreatorDB[] =
+    //         await this.commentDatabase.getCommentWithCreators()
+
+    //     const comments = commentsWithCreatorsDB.map((commentWithCreatorDB) => {
+    //         const comment = new Comment (
+    //             commentWithCreatorDB.id,
+    //             commentWithCreatorDB.post_id,
+    //             commentWithCreatorDB.user_id,
+    //             commentWithCreatorDB.comments,
+    //             commentWithCreatorDB.likes,
+    //             commentWithCreatorDB.dislikes,
+    //             commentWithCreatorDB.created_at,
+    //         )
+
+    //         return comment.toBusinessModel()
+    //     })
+
+    //     const output: GetCommentOutputDTO = comments
+
+    //     return output
+    // }
+
     public createPost = async (input: CreatePostInputDTO): Promise<void> => {
         const { content, token } = input
 
@@ -106,7 +158,8 @@ export class PostBusiness {
         }
 
         const newPostDB = await this.postDatabase.findPostById(idToEdit)
-
+        console.log(newPostDB);
+        
         if (!newPostDB) {
             throw new NotFoundError("'id' não encontrado")
         }
@@ -117,7 +170,7 @@ export class PostBusiness {
             throw new BadRequestError("somente o criador do post pode editá-lo")
         }
 
-        const creatorName = payload.nickName
+        const creatorNickName = payload.nickName
 
         const post = new Post(
             newPostDB.id,
@@ -128,7 +181,7 @@ export class PostBusiness {
             newPostDB.created_at,
             newPostDB.updated_at,
             creatorId,
-            creatorName
+            creatorNickName
         )
 
         post.setContent(content)
@@ -172,6 +225,7 @@ export class PostBusiness {
 
     public likeOrDislikePost = async (input: LikeOrDislikePostInputDTO): Promise<void> => {
         const { idToLikeOrDislike, token, like } = input
+console.log(like);
 
         if (token === undefined) {
             throw new BadRequestError("token é necessário")

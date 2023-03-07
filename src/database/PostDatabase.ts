@@ -1,5 +1,6 @@
-import { LikeDislikeDB, PostDB, PostWithCreatorDB, POST_LIKE } from "../types";
+import { CommentWithCreatorDB, LikeDislikeDB, PostDB, PostWithCreatorDB, POST_LIKE } from "../types";
 import { BaseDatabase } from "./BaseDatabase";
+import { CommentDatabase } from "./CommentDatabase";
 
 export class PostDatabase extends BaseDatabase {
 
@@ -21,6 +22,44 @@ export class PostDatabase extends BaseDatabase {
                 "users.nick_name AS creator_nickName"
             )
             .join("users", "posts.creator_id", "=", "users.id")
+
+        return result
+    }
+
+    public getPostsWithComments = async (): Promise<PostWithCreatorDB[]> => {
+        const resultPost: PostWithCreatorDB[] = await BaseDatabase
+            .connection(PostDatabase.TABLE_POST)
+            .select(
+                "posts.id",
+                "posts.creator_id",
+                "posts.content",
+                "posts.likes",
+                "posts.dislikes",
+                "posts.comments",
+                "posts.created_at",
+                "posts.updated_at",
+                "users.nick_name AS creator_nickName"
+            )
+            .join("users", "posts.creator_id", "=", "users.id")
+
+            const resultComment: CommentWithCreatorDB[] = await BaseDatabase
+            .connection(CommentDatabase.TABLE_COMMENT)
+            .select(
+                "comment.id",
+                "comment.post_id",
+                "comment.user_id",
+                "comment.comments",
+                "comment.likes",
+                "comment.dislikes",
+                "comment.created_at",
+                "users.nick_name AS creator_nickName"
+            )
+            .join("users", "comment.user_id", "=", "users.id")
+
+            const result = {
+                ...resultPost,
+                comments: resultComment
+            }
 
         return result
     }
@@ -67,7 +106,7 @@ export class PostDatabase extends BaseDatabase {
                 "posts.dislikes",
                 "posts.created_at",
                 "posts.updated_at",
-                "users.nickName AS creator_nickName"
+                "users.nick_name AS creator_nickName"
             )
             .join("users", "posts.creator_id", "=", "users.id")
             .where("posts.id", postId)
@@ -87,7 +126,7 @@ export class PostDatabase extends BaseDatabase {
             .select()
             .where({
                 user_id: likeDislikeDBToFind.user_id,
-                post_id: likeDislikeDBToFind.post_id
+                post_id: likeDislikeDBToFind.post_id,
             })
 
         if (likeDislikeDB) {
@@ -116,7 +155,7 @@ export class PostDatabase extends BaseDatabase {
             .update(likeDislikeDB)
             .where({
                 user_id: likeDislikeDB.user_id,
-                playlist_id: likeDislikeDB.post_id
+                post_id: likeDislikeDB.post_id
             })
     }
 

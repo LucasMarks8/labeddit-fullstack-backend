@@ -1,12 +1,12 @@
 import { CommentDatabase } from "../database/CommentDatabase"
 import { PostDatabase } from "../database/PostDatabase"
-import { CreateCommentInputDTO, CreateCommentOutputDTO, DeleteCommentInputDTO, EditCommentInputDTO, GetCommentInputDTO, GetCommentOutputDTO, LikeOrDislikeCommentInputDTO } from "../dtos/CommentDTO"
+import { CreateCommentInputDTO, CreateCommentOutputDTO, DeleteCommentInputDTO, EditCommentInputDTO, GetCommentInputDTO, GetCommentOutputDTO, GetCommentsInputDTO, LikeOrDislikeCommentInputDTO } from "../dtos/CommentDTO"
 import { BadRequestError } from "../errors/BadRequestError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { Comment } from "../models/CommentModel"
 import { IdGenerator } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
-import { COMMENT_LIKE, Role, CommentDB, LikeDislikeCommentDB, CommentModel } from "../types"
+import { COMMENT_LIKE, Role, CommentDB, LikeDislikeCommentDB, CommentModel, CommentWithCreatorDB } from "../types"
 
 export class CommentBusiness {
     constructor(
@@ -15,6 +15,42 @@ export class CommentBusiness {
         private idGenerator: IdGenerator,
         private tokenManager: TokenManager
     ) { }
+
+    public getComment = async (input: GetCommentsInputDTO): Promise<GetCommentOutputDTO> => {
+
+        const { token } = input
+
+        if (token === undefined) {
+            throw new BadRequestError("token é necessário")
+        }
+
+        const payload = this.tokenManager.getPayload(token)
+
+        if (payload === null) {
+            throw new BadRequestError("'token' inválido")
+        }
+
+        const commentsWithCreatorsDB: CommentWithCreatorDB[] =
+            await this.commentDatabase.getCommentWithCreators()
+
+        const comments = commentsWithCreatorsDB.map((commentWithCreatorDB) => {
+            const comment = new Comment (
+                commentWithCreatorDB.id,
+                commentWithCreatorDB.post_id,
+                commentWithCreatorDB.user_id,
+                commentWithCreatorDB.comments,
+                commentWithCreatorDB.likes,
+                commentWithCreatorDB.dislikes,
+                commentWithCreatorDB.created_at,
+            )
+
+            return comment.toBusinessModel()
+        })
+
+        const output: GetCommentOutputDTO = comments
+
+        return output
+    }
 
     public getCommentById = async (input: GetCommentInputDTO): Promise<CommentModel> => {
 
@@ -203,8 +239,8 @@ export class CommentBusiness {
 
         const comment = new Comment(
             commentWithCreatorDB.id,
-            commentWithCreatorDB.user_id,
             commentWithCreatorDB.post_id,
+            commentWithCreatorDB.user_id,
             commentWithCreatorDB.comments,
             commentWithCreatorDB.likes,
             commentWithCreatorDB.dislikes,
@@ -241,7 +277,8 @@ export class CommentBusiness {
         }
 
         const updatedCommentDB = comment.toDBModel()
-
+        console.log(updatedCommentDB);
+        
         await this.commentDatabase.updateComment(updatedCommentDB, idToLikeOrDislike)
     }
 }

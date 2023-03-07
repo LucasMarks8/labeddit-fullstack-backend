@@ -16,6 +16,24 @@ export class CommentDatabase extends BaseDatabase {
         return result[0]
     }
 
+    public getCommentWithCreators = async (): Promise<CommentWithCreatorDB[]> => {
+        const result: CommentWithCreatorDB[] = await BaseDatabase
+            .connection(CommentDatabase.TABLE_COMMENT)
+            .select(
+                "comment.id",
+                "comment.post_id",
+                "comment.user_id",
+                "comment.comments",
+                "comment.likes",
+                "comment.dislikes",
+                "comment.created_at",
+                "users.nick_name AS creator_nickName"
+            )
+            .join("users", "comment.user_id", "=", "users.id")
+
+        return result
+    }
+
     public findCommentWithPostId = async (
         commentId: string
     ): Promise<CommentWithCreatorDB | undefined> => {
@@ -66,11 +84,10 @@ export class CommentDatabase extends BaseDatabase {
                 "comment.id",
                 "comment.post_id",
                 "comment.user_id",
-                "comment.comment",
+                "comment.comments",
                 "comment.likes",
                 "comment.dislikes",
-                "comment.created_at",
-                "users.nickName AS creator_nickName"
+                "comment.created_at"
             )
             .join("users", "comment.user_id", "=", "users.id")
             .where("comment.id", commentId)

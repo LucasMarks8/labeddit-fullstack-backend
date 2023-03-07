@@ -5,6 +5,10 @@ export interface GetCommentInputDTO {
     token: string | undefined
 }
 
+export interface GetCommentsInputDTO {
+    token: string | undefined
+}
+
 export type GetCommentOutputDTO = CommentModel[]
 
 export interface CreateCommentInputDTO {
