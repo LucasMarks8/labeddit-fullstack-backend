@@ -1,12 +1,33 @@
 import { Request, Response } from "express"
 import { CommentBusiness } from "../business/CommentBusiness"
-import { CreateCommentInputDTO, DeleteCommentInputDTO, EditCommentInputDTO, GetCommentInputDTO, LikeOrDislikeCommentInputDTO } from "../dtos/CommentDTO"
+import { CreateCommentInputDTO, DeleteCommentInputDTO, EditCommentInputDTO, GetCommentInputDTO, GetCommentOutputDTO, GetCommentsInputDTO, LikeOrDislikeCommentInputDTO } from "../dtos/CommentDTO"
 import { BaseError } from "../errors/BaseError"
+
 
 export class CommentController {
     constructor(
-        private commentBusiness: CommentBusiness
+        private commentBusiness: CommentBusiness,
     ) { }
+
+    public getComment = async (req: Request, res: Response) => {
+        try {
+            const input: GetCommentsInputDTO = {
+                token: req.headers.authorization
+            }
+
+            const output = await this.commentBusiness.getComment(input)
+
+            res.status(200).send(output)
+        } catch (error) {
+            console.log(error)
+
+            if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.send("Erro inesperado")
+            }
+        }
+    }
 
     public getCommentById = async (req: Request, res: Response) => {
         try {
@@ -56,7 +77,7 @@ export class CommentController {
         try {
             const input: EditCommentInputDTO = {
                 idToEdit: req.params.id,
-                comments: req.body.content,
+                comments: req.body.comments,
                 token: req.headers.authorization
             }
 
