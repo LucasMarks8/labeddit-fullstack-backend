@@ -69,7 +69,7 @@ export class CommentBusiness {
         const commentsDB = await this.commentDatabase.findCommentById(idToSearch)
 
         if (!commentsDB) {
-            throw new NotFoundError("'id' não encontrado")
+            throw new NotFoundError("'id' não existe")
         }
 
         const comment = new Comment(
@@ -85,9 +85,8 @@ export class CommentBusiness {
         return comment
     }
 
-    public createComment = async (input: CreateCommentInputDTO): Promise<void> => {
+    public createComment = async (input: CreateCommentInputDTO): Promise<boolean> => {
         const { postId, comments, token } = input
-        console.log(input);
         
         if (token === undefined) {
             throw new BadRequestError("token ausente")
@@ -98,12 +97,11 @@ export class CommentBusiness {
         if (payload === null) {
             throw new BadRequestError("'token' inválido")
         }
-        console.log(payload);
-        console.log(postId, "Eu estou aquiiii");
+       
         const postDBExists = await this.postDatabase.findPostById(postId)
         
         if (postDBExists === null) {
-            throw new NotFoundError("'id' não encontrado")
+            throw new NotFoundError("'id' não existe")
         }
 
         if (typeof comments !== "string") {
@@ -125,6 +123,8 @@ export class CommentBusiness {
         const newCommentDB = newComment.toDBModel()
 
         await this.commentDatabase.insertComment(newCommentDB)
+
+        return true
     }
 
     public editComment = async (input: EditCommentInputDTO): Promise<void> => {
@@ -174,7 +174,7 @@ export class CommentBusiness {
 
     }
 
-    public deleteComment = async (input: DeleteCommentInputDTO): Promise<void> => {
+    public deleteComment = async (input: DeleteCommentInputDTO): Promise<boolean> => {
         const { idToDelete, token } = input
 
         if (token === undefined) {
@@ -202,9 +202,10 @@ export class CommentBusiness {
 
         await this.commentDatabase.deleteComment(idToDelete)
 
+        return true
     }
 
-    public likeOrDislikeComment = async (input: LikeOrDislikeCommentInputDTO): Promise<void> => {
+    public likeOrDislikeComment = async (input: LikeOrDislikeCommentInputDTO): Promise<boolean> => {
         const { idToLikeOrDislike, token, like } = input
 
         if (token === undefined) {
@@ -277,8 +278,9 @@ export class CommentBusiness {
         }
 
         const updatedCommentDB = comment.toDBModel()
-        console.log(updatedCommentDB);
         
         await this.commentDatabase.updateComment(updatedCommentDB, idToLikeOrDislike)
+
+        return true
     }
 }

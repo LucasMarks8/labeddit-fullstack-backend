@@ -28,13 +28,13 @@ export class PostController {
         }
     }
 
-    public getPostsWithComment = async (req: Request, res: Response) => {
+    public getPostComment = async (req: Request, res: Response) => {
         try {
             const input: GetPostsInputDTO = {
                 token: req.headers.authorization
             }
 
-            const output = await this.postBusiness.getPost(input)
+            const output = await this.postBusiness.getPostComment(input)
 
             res.status(200).send(output)
         } catch (error) {

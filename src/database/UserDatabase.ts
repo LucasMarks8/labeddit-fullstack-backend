@@ -4,7 +4,7 @@ import { BaseDatabase } from "./BaseDatabase";
 export class UserDatabase extends BaseDatabase {
     public static TABLE_USERS = "users"
 
-    public async findUserByEmail(email: string): Promise<UserDB | undefined> {
+    public findUserByEmail = async (email: string): Promise<UserDB | undefined> =>  {
         const result: UserDB[] = await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .select()
@@ -13,7 +13,7 @@ export class UserDatabase extends BaseDatabase {
         return result[0]
     }
 
-    public async findUserById(id: string): Promise<UserDB | undefined> {
+    public findUserById = async (id: string): Promise<UserDB | undefined> => {
         const result: UserDB[] = await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .select()
@@ -22,13 +22,13 @@ export class UserDatabase extends BaseDatabase {
         return result[0]
     }
 
-    public async insertUser(userDB: UserDB): Promise<void> {
+    public insertUser = async (userDB: UserDB): Promise<void> => {
         await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .insert(userDB)
     }
 
-    public async getUsers(): Promise<UserDB[]> {
+    public getUsers = async (): Promise<UserDB[]> => {
             const result: UserDB[] = await BaseDatabase
                 .connection(UserDatabase.TABLE_USERS)
                 .select()
@@ -36,14 +36,14 @@ export class UserDatabase extends BaseDatabase {
             return result
     }
 
-    public async editUser(newUserDB: UserDB, id: string): Promise<void> {
+    public editUser = async (newUserDB: UserDB, id: string): Promise<void> => {
         await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .update(newUserDB)
             .where({ id })
     }
 
-    public async deleteUser(id: string): Promise<void> {
+    public deleteUser = async (id: string): Promise<void> => {
         await BaseDatabase
         .connection(UserDatabase.TABLE_USERS)
         .del()
