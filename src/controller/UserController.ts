@@ -76,6 +76,7 @@ export class UserController {
             const input: EditUserInputDTO = {
                idToEdit: req.params.id,
                token: req.headers.authorization,
+               email: req.body.email,
                password: req.body.password
             }
                

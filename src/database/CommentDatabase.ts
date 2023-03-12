@@ -7,7 +7,7 @@ export class CommentDatabase extends BaseDatabase {
     public static TABLE_LIKES_DISLIKES = "likes_dislikes"
     public static TABLE_COMMENT_LIKES_DISLIKES = "comment_likes_dislikes"
 
-    public async findCommentById(id: string): Promise<CommentDB | undefined> {
+    public findCommentById = async (id: string): Promise<CommentDB | undefined> => {
         const result: CommentDB[] = await BaseDatabase
             .connection(CommentDatabase.TABLE_COMMENT)
             .select()
@@ -55,20 +55,20 @@ export class CommentDatabase extends BaseDatabase {
         return result[0]
     }
 
-    public async insertComment(newCommentDB: CommentDB): Promise<void> {
+    public insertComment = async (newCommentDB: CommentDB): Promise<void> => {
         await BaseDatabase
             .connection(CommentDatabase.TABLE_COMMENT)
             .insert(newCommentDB)
     }
 
-    public async updateComment(newCommentDB: CommentDB, id: string): Promise<void> {
+    public updateComment = async (newCommentDB: CommentDB, id: string): Promise<void> => {
         await BaseDatabase
             .connection(CommentDatabase.TABLE_COMMENT)
             .update(newCommentDB)
             .where({ id })
     }
 
-    public async deleteComment(id: string): Promise<void> {
+    public deleteComment = async(id: string): Promise<void> => {
         await BaseDatabase
             .connection(CommentDatabase.TABLE_COMMENT)
             .delete()

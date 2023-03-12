@@ -1,4 +1,4 @@
-import { UserModel } from "../types"
+import { Role, UserModel } from "../types"
 
 export interface SignupInputDTO {
     nickName: unknown,
@@ -26,9 +26,19 @@ export interface GetUsersInputDTO {
 export type GetUsersOutputDTO = UserModel[]
 
 export interface EditUserInputDTO {
-    idToEdit: string,
+    idToEdit?: string,
     token: string | undefined,
-    password: string
+    email?: string,
+    password?: string
+}
+
+export interface EditUserOutputDTO {
+    id: string,
+    nickName: string,
+    email: string,
+    password: string,
+    role: Role,
+    CreatedAt: string
 }
 
 export interface DeleteUserInputDTO {

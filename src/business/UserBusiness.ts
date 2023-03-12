@@ -1,6 +1,6 @@
 import { BadRequestError } from "../errors/BadRequestError";
 import { NotFoundError } from "../errors/NotFoundError";
-import { SignupInputDTO, LoginInputDTO, GetUsersInputDTO, GetUsersOutputDTO, EditUserInputDTO, DeleteUserInputDTO } from "../dtos/UserDTO"
+import { SignupInputDTO, LoginInputDTO, GetUsersInputDTO, GetUsersOutputDTO, EditUserInputDTO, DeleteUserInputDTO, LoginOutputDTO } from "../dtos/UserDTO"
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
@@ -40,6 +40,12 @@ export class UserBusiness {
 
         if (!password.match(regexPassword)) {
             throw new BadRequestError("'password' deve possuir entre 8 e 12 caracteres, com letras maiúsculas e minúsculas e no mínimo um número e um caractere especial");
+        }
+
+        const emailAlreadyExists = await this.userDatabase.findUserByEmail(email)
+
+        if (emailAlreadyExists) {
+            throw new BadRequestError("'email' já existe")
         }
 
         const id = this.idGenerator.generate()
@@ -95,7 +101,7 @@ export class UserBusiness {
         const userDB = await this.userDatabase.findUserByEmail(email)
 
         if (!userDB) {
-            throw new NotFoundError("'email' não encontrado");
+            throw new NotFoundError("'email' não cadstrado");
         }
 
         const user = new User(
@@ -107,12 +113,15 @@ export class UserBusiness {
             userDB.created_at
         )
 
-        const passwordHash = await this.hashManager.compare(password, userDB.password)
+       const hashedPassword = user.getPassword()
 
-        if (!passwordHash) {
+        const isPasswordCorrect = await this.hashManager
+            .compare(password, hashedPassword)
+        
+        if (!isPasswordCorrect) {
             throw new BadRequestError("'password' incorreto")
         }
-        
+
         const payload: TokenPayload = {
             id: user.getId(),
             nickName: user.getNickName(),
@@ -121,7 +130,7 @@ export class UserBusiness {
 
         const token = this.tokenManager.createToken(payload)
 
-        const output = {
+        const output: LoginOutputDTO = {
             token: token
         }
 
@@ -144,7 +153,7 @@ export class UserBusiness {
         const usersDB = await this.userDatabase.getUsers()
 
         const users = usersDB.map((userDB) => {
-            const user = new User (
+            const user = new User(
                 userDB.id,
                 userDB.nick_name,
                 userDB.email,
@@ -156,16 +165,24 @@ export class UserBusiness {
         })
 
         const output: GetUsersOutputDTO = users
-        
+
         return output
     }
 
     public editUser = async (input: EditUserInputDTO): Promise<void> => {
-        const { idToEdit, token, password } = input
+        const { idToEdit, token, email, password } = input
 
         if (token === undefined) {
             throw new BadRequestError("token é necessário")
         }
+
+        if (idToEdit === undefined) {
+            throw new BadRequestError("'id' é necessário")
+        }
+
+        // if (idToEdit !== "string") {
+        //     throw new BadRequestError("'id' deve ser string")
+        // }
 
         const payload = this.tokenManager.getPayload(token)
 
@@ -173,8 +190,22 @@ export class UserBusiness {
             throw new BadRequestError("'token inválido");
         }
 
-        if (typeof password !== "string") {
-            throw new BadRequestError("'password' deve ser uma string")
+        if (email !== undefined) {
+            if (typeof email !== "string") {
+                throw new BadRequestError("'email' deve ser uma string")
+            }
+            if (!email.match(regexEmail)) {
+                throw new BadRequestError("'email' deve possuir letras minúsculas, deve ter um @, letras minúsculas, ponto (.) e de 2 a 4 letras minúsculas")
+            }
+        }
+
+        if (password !== undefined) {
+            if (typeof password !== "string") {
+                throw new BadRequestError("'password' deve ser uma string")
+            }
+            if (!password.match(regexPassword)) {
+                throw new BadRequestError("'password' deve possuir entre 8 e 12 caracteres, com letras maiúsculas e minúsculas e no mínimo um número e um caractere especial");
+            }
         }
 
         const newUserDB = await this.userDatabase.findUserById(idToEdit)
@@ -192,8 +223,12 @@ export class UserBusiness {
             newUserDB.created_at
         )
 
-        if (password !== undefined) {
+        if (password) {
             user.setPassword(password)
+        }
+
+        if (email) {
+            user.setEmail(email)
         }
 
         const updatedUserDB = user.toDBModel()
@@ -201,31 +236,33 @@ export class UserBusiness {
         await this.userDatabase.editUser(updatedUserDB, idToEdit)
     }
 
-    public deleteUser = async (input: DeleteUserInputDTO) => {
+    public deleteUser = async (input: DeleteUserInputDTO): Promise<boolean> => {
         const { idToDelete, token } = input
 
         if (token === undefined) {
-            throw new BadRequestError("token é necessário")
+            throw new BadRequestError("'token' inválido")
         }
 
         const payload = this.tokenManager.getPayload(token)
 
-        if (payload === null) {
-            throw new BadRequestError("Usuário não está logado")
+        if (!payload) {
+            throw new BadRequestError("'token' inválido")
         }
 
         const userDBExists = await this.userDatabase.findUserById(idToDelete)
 
         if (!userDBExists) {
-            throw new NotFoundError("usuário não encontrado");
+            throw new NotFoundError("'id' não existe");
         }
 
         const creatorId = payload.id
 
         if (payload.role !== Role.ADMIN && userDBExists.id !== creatorId) {
-            throw new BadRequestError("somenste o próprio usuário pode deleta-lo");
+            throw new BadRequestError("somente o próprio usuário ou um admin pode deleta-lo");
         }
 
         await this.userDatabase.deleteUser(idToDelete)
+
+        return true
     }
 }
