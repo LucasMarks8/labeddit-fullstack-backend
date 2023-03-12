@@ -4,7 +4,7 @@ import { SignupInputDTO, LoginInputDTO, GetUsersInputDTO, GetUsersOutputDTO, Edi
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
-import { Role, TokenPayload, UserDB } from "../Types";
+import { Role, TokenPayload } from "../types";
 import { User } from "../models/UserModel";
 import { UserDatabase } from "../database/UserDatabase";
 
