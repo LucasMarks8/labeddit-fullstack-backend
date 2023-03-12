@@ -29,7 +29,7 @@
 ## 🖨Descrição do Projeto
 <p>API onde é possivel realizar o cadastro via signup e login para criar posts, curtir e descutir posts, comentar posts, curtir e descurtir comentários.</p>
 
-## 🖋Autor
+## 🖋Autor 
 
 - Lucas Marques
 - Email: lucas.marks8@gmail.com
