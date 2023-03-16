@@ -1,7 +1,7 @@
 import { CommentDatabase } from "../database/CommentDatabase"
 import { PostDatabase } from "../database/PostDatabase"
 import { UserDatabase } from "../database/UserDatabase"
-import { CreatePostInputDTO, DeletePostInputDTO, EditPostInputDTO, GetPostsInputDTO, GetPostsOutputDTO, LikeOrDislikePostInputDTO } from "../dtos/PostDTO"
+import { CreatePostInputDTO, DeletePostInputDTO, EditPostInputDTO, getPostCommentsInputDTO, GetPostsInputDTO, GetPostsOutputDTO, LikeOrDislikePostInputDTO } from "../dtos/PostDTO"
 import { BadRequestError } from "../errors/BadRequestError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { Post } from "../models/PostModel"
@@ -55,11 +55,10 @@ export class PostBusiness {
         return output
     }
 
-    public getPostComment = async (input: GetPostsInputDTO) => {
+    public getCommentByPostId = async (input: getPostCommentsInputDTO) => {
 
-        const { token } = input
-        console.log(input);
-        
+        const { id, token } = input
+
         if (token === undefined) {
             throw new BadRequestError("token é necessário")
         }
@@ -68,6 +67,12 @@ export class PostBusiness {
 
         if (payload === null) {
             throw new BadRequestError("'token' inválido")
+        }
+
+        const postIdExists = await this.postDatabase.findPostById(id)
+
+        if (!postIdExists) {
+            throw new BadRequestError("'id' não encontrada")
         }
 
         const posts = await this.postDatabase.getPosts()
@@ -80,9 +85,13 @@ export class PostBusiness {
 
         const comments = await commentsDatabase.getCommentWithCreators()
 
-        const resultPost = posts.map((post) => {
+        const post = posts.filter((post) => {
+            const samePost = postIdExists.id === post.id
+            return samePost
+        })
 
-           const contador = comments.filter((comment) => {
+        const resultPost = post.map((post) => {
+            const contador = comments.filter((comment) => {
                 return comment.post_id === post.id
             })
 
