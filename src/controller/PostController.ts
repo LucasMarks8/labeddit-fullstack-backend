@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { PostBusiness } from "../business/PostBusiness"
-import { CreatePostInputDTO, DeletePostInputDTO, EditPostInputDTO, GetPostsInputDTO, LikeOrDislikePostInputDTO } from "../dtos/PostDTO"
+import { CreatePostInputDTO, DeletePostInputDTO, EditPostInputDTO, getPostCommentsInputDTO, GetPostsInputDTO, LikeOrDislikePostInputDTO } from "../dtos/PostDTO"
 import { BaseError } from "../errors/BaseError"
 
 export class PostController {
@@ -28,13 +28,14 @@ export class PostController {
         }
     }
 
-    public getPostComment = async (req: Request, res: Response) => {
+    public getCommentByPostId = async (req: Request, res: Response) => {
         try {
-            const input: GetPostsInputDTO = {
+            const input: getPostCommentsInputDTO = {
+                id: req.params.id,
                 token: req.headers.authorization
             }
 
-            const output = await this.postBusiness.getPostComment(input)
+            const output = await this.postBusiness.getCommentByPostId(input)
 
             res.status(200).send(output)
         } catch (error) {

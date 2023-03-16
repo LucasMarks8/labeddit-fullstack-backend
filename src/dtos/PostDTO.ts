@@ -2,6 +2,7 @@ import { PostModel } from "../types"
 
 export interface GetPostsInputDTO {
     token: string | undefined
+
 }
 
 export type GetPostsOutputDTO = PostModel[]
@@ -26,4 +27,9 @@ export interface LikeOrDislikePostInputDTO {
     idToLikeOrDislike: string,
     token: string | undefined,
     like: unknown
+}
+
+export interface getPostCommentsInputDTO {
+    id: string,
+    token: string | undefined
 }
