@@ -107,7 +107,7 @@ export class CommentBusiness {
         if (typeof comments !== "string") {
             throw new BadRequestError("'comments' deve ser uma string")
         }
-        const commentsQtt = postDBExists.comments + 1
+        const commentsQtt = postDBExists.comments? postDBExists.comments + 1 : 1
         const postPlusComment = {...postDBExists, comments:commentsQtt}
         await this.postDatabase.updatePost(postPlusComment, postId)
 
