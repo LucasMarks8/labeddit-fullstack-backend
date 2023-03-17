@@ -100,13 +100,16 @@ export class CommentBusiness {
        
         const postDBExists = await this.postDatabase.findPostById(postId)
         
-        if (postDBExists === null) {
+        if (!postDBExists) {
             throw new NotFoundError("'id' não existe")
         }
 
         if (typeof comments !== "string") {
             throw new BadRequestError("'comments' deve ser uma string")
         }
+        const commentsQtt = postDBExists.comments + 1
+        const postPlusComment = {...postDBExists, comments:commentsQtt}
+        await this.postDatabase.updatePost(postPlusComment, postId)
 
         const newId = this.idGenerator.generate()
 
