@@ -32,18 +32,6 @@ VALUES (
         "lucas@email.com",
         "Lucas123!",
         "ADMIN"
-    ), (
-        "u002",
-        "dedé09",
-        "andre@email.com",
-        "Andre123!",
-        "NORMAL"
-    ), (
-        "u003",
-        "jujuba",
-        "juliana@email.com",
-        "Juliana123!",
-        "NORMAL"
     );
 
 CREATE TABLE
@@ -121,6 +109,8 @@ VALUES
     ("c003", "p002", "u003", "Se couber mais um, to aí em!");
 
 DROP TABLE post_comment;
+
+DROP TABLE comment_likes_dislikes;
 CREATE TABLE
     comment_likes_dislikes (
         post_id TEXT NOT NULL,
