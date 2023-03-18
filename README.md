@@ -35,3 +35,6 @@
 - Email: lucas.marks8@gmail.com
 - Tel: 11 96997-5003
 - ["Linkedin"](https://www.linkedin.com/in/lucas-henrique-marques/)
+
+## Link repositório LabEddit - Frontend
+- (https://github.com/LucasMarks8/labeddit-fullstack-frontend)
